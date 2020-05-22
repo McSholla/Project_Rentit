@@ -1,14 +1,22 @@
 package com.example.rentit;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,11 +25,22 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import static com.example.rentit.R.string.app_name;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawerlayout;
     private ActionBarDrawerToggle mToggle;
@@ -34,14 +53,35 @@ public class HomeActivity extends AppCompatActivity {
     LinearLayout itemOne, itemTwo, itemThree;
     HorizontalScrollView categoryItem;
     ScrollView popular;
+    SharedPreferences sharedPref;
+    private boolean logoutVisible = false;
+    private boolean loginVisible = false;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        setUpToolbar();
+        setContentView(R.layout.fragment_home);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mDrawerlayout = (DrawerLayout) findViewById(R.id.drawer);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+
+
+        mToggle = new ActionBarDrawerToggle(this, mDrawerlayout, toolbar, R.string.open, R.string.close);
+        mDrawerlayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+
+
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
 
 
 
@@ -100,40 +140,55 @@ public class HomeActivity extends AppCompatActivity {
 //        tvRare.startAnimation(fromtopbottom);
 //
 //        categoryItem.startAnimation(fromtopbottom);
+
         popular.startAnimation(fromtopbottomfour);
 
 //        itemOne.startAnimation(fromtopbottom);
 //        itemTwo.startAnimation(fromtopbottomtwo);
 //        itemThree.startAnimation(fromtopbottomthree);
 
+        sharedPref = this.getSharedPreferences("com.example.rentit", Context.MODE_PRIVATE);
+
+
+
+
+        if (sharedPref.getBoolean("IsUserLogined", true )){
+            loginVisible = false;
+            logoutVisible= true;
+            Menu nav_Menu = navigationView.getMenu();
+            nav_Menu.findItem(R.id.logout).setVisible(logoutVisible);
+            nav_Menu.findItem(R.id.login).setVisible(loginVisible);
+
+
+        }
+
 
     }
 
-    private void setUpToolbar() {
-
-        mDrawerlayout = (DrawerLayout) findViewById(R.id.drawer);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mToggle = new ActionBarDrawerToggle(this, mDrawerlayout, toolbar, R.string.open, R.string.close);
-        mDrawerlayout.addDrawerListener(mToggle);
-        mToggle.syncState();
-
-
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
-
-
-
-//        mDrawerlayout = (DrawerLayout) findViewById(R.id.drawer);
-//        toolbar = (Toolbar) findViewById(R.id.toolbar);
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.login:
+                Intent intent = new Intent(this, RegisterActivity.class);
+                this.startActivity(intent);
+            break;
+            case R.id.add_properties:
+                 intent = new Intent(this, RegisterActivity.class);
+                this.startActivity(intent);
+                break;
+           case R.id.logout:
+                FirebaseAuth.getInstance().signOut();
+//                Auth.GoogleSignInApi.signOut(GoogleSignIn.getClient(this, gso)).setResultCallback(
+//                        new ResultCallback<Status>() {
+//                            @Override
+//                            public void onResult(Status status) {
 //
-//        mToggle = new ActionBarDrawerToggle(this,mDrawerlayout,toolbar,);
-//        mDrawerlayout.addDrawerListener(mToggle);
-//        mToggle.syncState();
+//
+//                            }
+//                        });
+        }
 
+        return true;
     }
-
 
 }
-

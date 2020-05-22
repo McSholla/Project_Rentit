@@ -11,11 +11,17 @@
         android:roundIcon="@drawable/rentit"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".VillaActivity"></activity>
+        <activity android:name=".CategoryActivity"></activity>
+        <activity android:name=".AddProperties" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".AltLogin" />
+        <activity
+            android:name=".NavigationActivity"
+            android:label="@string/title_activity_navigation" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".VillaActivity" />
         <activity android:name=".OfficeActivity" />
         <activity android:name=".ServiceActivity" />
-        <activity android:name=".ApartmentsActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

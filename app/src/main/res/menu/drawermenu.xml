@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/all_properties"
-        android:title="All Properties"
+        android:title="Register"
         android:icon="@drawable/allprop_white_big"
         />
 

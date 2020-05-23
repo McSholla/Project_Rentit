@@ -4,23 +4,33 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.rentit.Model.Users;
 import com.example.rentit.Prevalent.Prevalent;
+import com.example.rentit.ui.home.HomeFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.security.AlgorithmParameters;
+
+import static com.example.rentit.Prevalent.Prevalent.UserPasswordKey;
+import static com.example.rentit.Prevalent.Prevalent.UserPhoneKey;
 
 public class AltLogin extends AppCompatActivity
 {
@@ -28,9 +38,13 @@ public class AltLogin extends AppCompatActivity
     private Button LoginButton;
     private ProgressDialog loadingBar;
     private TextView AdminLink, NotAdminLink;
-
+    private boolean logoutVisible = false;
+        private boolean loginVisible = false;
     private String parentDbName = "Users";
     private CheckBox chkBoxRememberMe;
+    private MenuItem btnSignOut;
+    SharedPreferences sharedPref;
+    private ImageView Backbut;
 
 
     @Override
@@ -38,8 +52,8 @@ public class AltLogin extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alt_login);
-
-
+        btnSignOut = findViewById(R.id.logout);
+        Backbut = findViewById(R.id.back_but);
         LoginButton = (Button) findViewById(R.id.login_btn);
         InputPassword = (EditText) findViewById(R.id.login_password_input);
         InputPhoneNumber = (EditText) findViewById(R.id.login_phone_number_input);
@@ -51,7 +65,15 @@ public class AltLogin extends AppCompatActivity
 //        chkBoxRememberMe = (CheckBox) findViewById(R.id.remember_me_chkb);
 //        Paper.init(this);
 
+        Backbut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AltLogin.this, NavigationActivity.class);
+                startActivity(intent);
+            }
+        });
 
+        sharedPref = this.getSharedPreferences("com.example.rentit", Context.MODE_PRIVATE);
         LoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
@@ -64,10 +86,10 @@ public class AltLogin extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                LoginButton.setText("Login Admin");
+                LoginButton.setText("Login Agent");
                 AdminLink.setVisibility(View.INVISIBLE);
                 NotAdminLink.setVisibility(View.VISIBLE);
-                parentDbName = "Admins";
+                parentDbName = "Agents";
             }
         });
 
@@ -114,11 +136,12 @@ public class AltLogin extends AppCompatActivity
 
     private void AllowAccessToAccount(final String phone, final String password)
     {
-//        if(chkBoxRememberMe.isChecked())
-//        {
+
+
+
 //            Paper.book().write(Prevalent.UserPhoneKey, phone);
-//            Paper.book().write(Prevalent.UserPasswordKey, password);
-//        }
+//            write(Prevalent.UserPasswordKey, password);
+
 
 
         final DatabaseReference RootRef;
@@ -137,20 +160,24 @@ public class AltLogin extends AppCompatActivity
                     {
                         if (usersData.getPassword().equals(password))
                         {
-                            if (parentDbName.equals("Admins"))
+                            if (parentDbName.equals("Agents"))
                             {
                                 Toast.makeText(AltLogin.this, "Welcome Admin, you are logged in Successfully...", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
+                                sharedPref.edit().putBoolean("IsUserLogined", true).apply();
+                                sharedPref.edit().putString("Username", usersData.getName()).apply();
 
-                                Intent intent = new Intent(AltLogin.this, AddProperties.class);
+                                Intent intent = new Intent(AltLogin.this, CategoryActivity.class);
+                                Prevalent.currentOnlineUser = usersData;
                                 startActivity(intent);
                             }
                             else if (parentDbName.equals("Users"))
                             {
                                 Toast.makeText(AltLogin.this, "logged in Successfully...", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
-
-                                Intent intent = new Intent(AltLogin.this, HomeActivity.class);
+                                sharedPref.edit().putBoolean("IsUserLogined", true).apply();
+                                sharedPref.edit().putString("Username", usersData.getName()).apply();
+                                Intent intent = new Intent(AltLogin.this, NavigationActivity.class);
                                 Prevalent.currentOnlineUser = usersData;
                                 startActivity(intent);
                             }
